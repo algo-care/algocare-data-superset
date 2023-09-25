@@ -30,6 +30,7 @@ cover
 .DS_Store
 .eggs
 .env
+.env-non-dev
 .envrc
 .idea
 .mypy_cache
@@ -107,7 +108,4 @@ release.json
 
 # Translation binaries
 messages.mo
-
-docker/requirements-local.txt
-
 cache/

@@ -25,6 +25,8 @@ import os
 
 from celery.schedules import crontab
 from flask_caching.backends.filesystemcache import FileSystemCache
+from flask_appbuilder.security.manager import AUTH_OAUTH
+from custom_sso_security_manager import CustomSsoSecurityManager
 
 logger = logging.getLogger()
 
@@ -40,6 +42,9 @@ EXAMPLES_PASSWORD = os.getenv("EXAMPLES_PASSWORD")
 EXAMPLES_HOST = os.getenv("EXAMPLES_HOST")
 EXAMPLES_PORT = os.getenv("EXAMPLES_PORT")
 EXAMPLES_DB = os.getenv("EXAMPLES_DB")
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 # The SQLAlchemy connection string.
 SQLALCHEMY_DATABASE_URI = (
@@ -97,6 +102,36 @@ ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
 WEBDRIVER_BASEURL = "http://superset:8088/"
 # The base URL for the email report hyperlinks.
 WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+# CSRF
+SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
+# Flask-WTF flag for CSRF
+WTF_CSRF_ENABLED = True
+# Add endpoints that need to be exempt from CSRF protection
+WTF_CSRF_EXEMPT_LIST = []
+# A CSRF token that expires in 1 year
+WTF_CSRF_TIME_LIMIT = 60 * 60 * 24 * 365
+
+# google oauth
+# AUTH_TYPE = AUTH_OAUTH
+# AUTH_ROLE_PUBLIC = 'Public'
+# AUTH_USER_REGISTRATION = True
+
+# OAUTH_PROVIDERS = [{
+#         "name": "google",
+#         "token_key": "access_token",
+#         "icon": "fa-google", "remote_app": {
+#                 "api_base_url": "https://www.googleapis.com/oauth2/v2/",
+#                 "client_kwargs": {
+#                         "scope": "email profile"
+#                 },
+#                 "access_token_url": "https://accounts.google.com/o/oauth2/token",
+#                 "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+#                 "request_token_url": None,
+#                 "client_id": GOOGLE_CLIENT_ID,
+#                 "client_secret": GOOGLE_CLIENT_SECRET
+#         }
+# }]
+# CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 SQLLAB_CTAS_NO_LIMIT = True
 
@@ -113,3 +148,5 @@ try:
     )
 except ImportError:
     logger.info("Using default Docker config...")
+
+
