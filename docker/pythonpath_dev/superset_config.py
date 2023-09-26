@@ -45,6 +45,7 @@ EXAMPLES_DB = os.getenv("EXAMPLES_DB")
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+SLACK_API_TOKEN = os.getenv("SLACK_API_TOKEN")
 
 # The SQLAlchemy connection string.
 SQLALCHEMY_DATABASE_URI = (
@@ -98,16 +99,15 @@ class CeleryConfig:
 CELERY_CONFIG = CeleryConfig
 
 FEATURE_FLAGS = {"ALERT_REPORTS": True}
-ALERT_REPORTS_NOTIFICATION_DRY_RUN = True
-WEBDRIVER_BASEURL = "http://superset:8088/"
-# The base URL for the email report hyperlinks.
-WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
+ALERT_REPORTS_NOTIFICATION_DRY_RUN = False
+
 # CSRF
 SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
 # Flask-WTF flag for CSRF
 ENABLE_PROXY_FIX= True
 CSRF_ENABLED = True
 WTF_CSRF_ENABLED = True
+TALISMAN_ENABLED = False
 # Add endpoints that need to be exempt from CSRF protection
 WTF_CSRF_EXEMPT_LIST = []
 # A CSRF token that expires in 1 year
@@ -159,4 +159,108 @@ except ImportError:
 
 
 ROW_LIMIT = 5000
+# For SQL LAB
 SQL_MAX_ROW = 5000
+WEBDRIVER_TYPE = "firefox"
+WEBDRIVER_OPTION_ARGS = [
+    "--force-device-scale-factor=2.0",
+    "--high-dpi-support=2.0",
+    "--headless",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-extensions",
+]
+
+WEBDRIVER_BASEURL = "http://superset:8088/"
+# The base URL for the email report hyperlinks.
+# WEBDRIVER_BASEURL = "http://localhost:8088"
+# This is the link sent to the recipient. Change to your domain, e.g. https://superset.mydomain.com
+WEBDRIVER_BASEURL_USER_FRIENDLY = "https://superset.algocare.link"
+SCREENSHOT_LOCATE_WAIT = 100
+SCREENSHOT_LOAD_WAIT = 600
+
+from superset.tasks.types import ExecutorType
+
+THUMBNAIL_SELENIUM_USER = 'admin'
+ALERT_REPORTS_EXECUTE_AS = [ExecutorType.SELENIUM]
+
+SCHEDULED_QUERIES = {
+    # This information is collected when the user clicks "Schedule query",
+    # and saved into the `extra` field of saved queries.
+    # See: https://github.com/mozilla-services/react-jsonschema-form
+    'JSONSCHEMA': {
+        'title': 'Schedule',
+        'description': (
+            'In order to schedule a query, you need to specify when it '
+            'should start running, when it should stop running, and how '
+            'often it should run. You can also optionally specify '
+            'dependencies that should be met before the query is '
+            'executed. Please read the documentation for best practices '
+            'and more information on how to specify dependencies.'
+        ),
+        'type': 'object',
+        'properties': {
+            'output_table': {
+                'type': 'string',
+                'title': 'Output table name',
+            },
+            'start_date': {
+                'type': 'string',
+                'title': 'Start date',
+                # date-time is parsed using the chrono library, see
+                # https://www.npmjs.com/package/chrono-node#usage
+                'format': 'date-time',
+                'default': 'tomorrow at 9am',
+            },
+            'end_date': {
+                'type': 'string',
+                'title': 'End date',
+                # date-time is parsed using the chrono library, see
+                # https://www.npmjs.com/package/chrono-node#usage
+                'format': 'date-time',
+                'default': '9am in 30 days',
+            },
+            'schedule_interval': {
+                'type': 'string',
+                'title': 'Schedule interval',
+            },
+            'dependencies': {
+                'type': 'array',
+                'title': 'Dependencies',
+                'items': {
+                    'type': 'string',
+                },
+            },
+        },
+    },
+    'UISCHEMA': {
+        'schedule_interval': {
+            'ui:placeholder': '@daily, @weekly, etc.',
+        },
+        'dependencies': {
+            'ui:help': (
+                'Check the documentation for the correct format when '
+                'defining dependencies.'
+            ),
+        },
+    },
+    'VALIDATION': [
+        # ensure that start_date <= end_date
+        {
+            'name': 'less_equal',
+            'arguments': ['start_date', 'end_date'],
+            'message': 'End date cannot be before start date',
+            # this is where the error message is shown
+            'container': 'end_date',
+        },
+    ]
+    # link to the scheduler; this example links to an Airflow pipeline
+    # that uses the query id and the output table as its name
+    # 'linkback': (
+    #     'https://airflow.example.com/admin/airflow/tree?'
+    #     'dag_id=query_${id}_${extra_json.schedule_info.output_table}'
+    # ),
+}
+
