@@ -105,6 +105,8 @@ WEBDRIVER_BASEURL_USER_FRIENDLY = WEBDRIVER_BASEURL
 # CSRF
 SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
 # Flask-WTF flag for CSRF
+ENABLE_PROXY_FIX= True
+CSRF_ENABLED = True
 WTF_CSRF_ENABLED = True
 # Add endpoints that need to be exempt from CSRF protection
 WTF_CSRF_EXEMPT_LIST = []
@@ -112,27 +114,33 @@ WTF_CSRF_EXEMPT_LIST = []
 WTF_CSRF_TIME_LIMIT = 60 * 60 * 24 * 365
 
 # google oauth
-# AUTH_TYPE = AUTH_OAUTH
-# AUTH_ROLE_PUBLIC = 'Public'
-# AUTH_USER_REGISTRATION = True
+AUTH_TYPE = AUTH_OAUTH
 
-# OAUTH_PROVIDERS = [{
-#         "name": "google",
-#         "token_key": "access_token",
-#         "icon": "fa-google", "remote_app": {
-#                 "api_base_url": "https://www.googleapis.com/oauth2/v2/",
-#                 "client_kwargs": {
-#                         "scope": "email profile"
-#                 },
-#                 "access_token_url": "https://accounts.google.com/o/oauth2/token",
-#                 "authorize_url": "https://accounts.google.com/o/oauth2/auth",
-#                 "request_token_url": None,
-#                 "client_id": GOOGLE_CLIENT_ID,
-#                 "client_secret": GOOGLE_CLIENT_SECRET
-#         }
-# }]
+# 사용자 권한 초기 어드민 설정
+AUTH_ROLE_PUBLIC = 'Admin'
+AUTH_USER_REGISTRATION_ROLE = "Admin"
+AUTH_USER_REGISTRATION = True
+
+OAUTH_PROVIDERS = [{
+        "name": "google",
+        "whitelist": ["@algocarelab.com"],
+        "token_key": "access_token",
+        "icon": "fa-google", 
+        "remote_app": {
+            "api_base_url": "https://www.googleapis.com/oauth2/v2/",
+            "client_kwargs": {
+                    "scope": "email profile"
+            },
+            "access_token_url": "https://accounts.google.com/o/oauth2/token",
+            "authorize_url": "https://accounts.google.com/o/oauth2/auth",
+            "jwks_uri": "https://www.googleapis.com/oauth2/v3/certs",
+            "request_token_url": None,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET
+        }
+}]
+# CUSTOM_SECURITY_MANAGER 사용시 코드 오류 발견, 일단 없어도 될듯 하여 주석 처리
 # CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
-
 SQLLAB_CTAS_NO_LIMIT = True
 
 #
@@ -150,3 +158,5 @@ except ImportError:
     logger.info("Using default Docker config...")
 
 
+ROW_LIMIT = 5000
+SQL_MAX_ROW = 5000
